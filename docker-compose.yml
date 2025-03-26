@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: balcao
+      POSTGRES_DB: pets_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - balcao-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - balcao-net
+  pets-service:
+    build:
+      context: ./app/pets_service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=balcao
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=pets_db
+    depends_on:
+      - db
+    networks:
+      - balcao-net
+
+  gateway:
+    build:
+      context: ./app/gateway
+    ports:
+      - "80:81"
+    depends_on:
+      - pets-service
+    networks:
+      - balcao-net
+
+networks:
+  balcao-net:
+
+volumes:
+  pgdata:

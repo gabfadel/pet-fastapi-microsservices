@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+SQLAlchemy>=1.4
+aiomysql
+asyncpg
+sqlmodel==0.0.4
+enum34
+pydantic
